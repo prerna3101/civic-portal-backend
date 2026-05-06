@@ -1,7 +1,9 @@
 package com.example.civicportal.service.impl;
 
 import com.example.civicportal.dto.AuthRequest;
+import com.example.civicportal.dto.RegisterRequest;
 import com.example.civicportal.entity.User;
+import com.example.civicportal.enums.Role;
 import com.example.civicportal.repository.UserRepository;
 import com.example.civicportal.security.JwtUtil;
 import com.example.civicportal.service.AuthService;
@@ -17,6 +19,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder encoder;
     private final JwtUtil jwtUtil;
 
+    // ✅ LOGIN
     @Override
     public String login(AuthRequest request) {
 
@@ -27,6 +30,28 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        return jwtUtil.generateToken(user.getUsername());
+        // ✅ FIX: send BOTH username + role
+        return jwtUtil.generateToken(
+                user.getUsername(),
+                user.getRole().name()
+        );
+    }
+
+    // ✅ REGISTER (UPDATED)
+    @Override
+    public void register(RegisterRequest request) {
+
+        // check if user already exists
+        if (repo.findByUsername(request.getUsername()).isPresent()) {
+            throw new RuntimeException("Username already exists");
+        }
+
+        // create new user
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(encoder.encode(request.getPassword()));
+        user.setRole(Role.USER); // default role
+
+        repo.save(user);
     }
 }

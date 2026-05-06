@@ -6,6 +6,7 @@ import com.example.civicportal.enums.ComplaintStatus;
 import com.example.civicportal.service.ComplaintService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,11 +19,16 @@ public class ComplaintController {
     private final ComplaintService service;
 
     @PostMapping
-    public String create(@RequestBody ComplaintRequest request,
-                         Authentication auth) {
+    public String createComplaint(@RequestBody ComplaintRequest request) {
 
-        service.createComplaint(request, auth.getName());
-        return "Complaint submitted";
+        // GET USER FROM JWT
+        String username = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        service.createComplaint(request, username);
+
+        return "Complaint submitted successfully";
     }
 
     @GetMapping("/my")

@@ -23,7 +23,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
 
-                        // Swagger access
+                        // Swagger
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -33,11 +33,15 @@ public class SecurityConfig {
                         // Auth APIs
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // Allow OPTIONS (CORS)
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // USER APIs
+                        .requestMatchers(HttpMethod.POST, "/api/complaints").hasRole("USER")
+                        .requestMatchers("/api/complaints/my").hasRole("USER")
 
-                        // Everything else (TEMP open)
-                        .anyRequest().permitAll()
+                        // ADMIN APIs
+                        .requestMatchers(HttpMethod.GET, "/api/complaints").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/complaints/**").hasRole("ADMIN")
+
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -46,6 +50,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder();
     }
 }

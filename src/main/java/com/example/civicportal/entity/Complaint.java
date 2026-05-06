@@ -16,7 +16,7 @@ public class Complaint {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    private ComplaintStatus status;
+    private ComplaintStatus status = ComplaintStatus.PENDING; // ✅ default
 
-    private String username; // simple mapping
+    private String username;
 }

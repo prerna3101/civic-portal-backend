@@ -17,15 +17,20 @@ public class ComplaintServiceImpl implements ComplaintService {
     private final ComplaintRepository repo;
 
     @Override
-    public void createComplaint(ComplaintRequest request, String username) {
+    public void createComplaint(ComplaintRequest request,
+                                String username) {
 
-        Complaint c = new Complaint();
-        c.setTitle(request.getTitle());
-        c.setDescription(request.getDescription());
-        c.setStatus(ComplaintStatus.PENDING);
-        c.setUsername(username);
+        Complaint complaint = new Complaint();
 
-        repo.save(c);
+        complaint.setTitle(request.getTitle());
+        complaint.setDescription(request.getDescription());
+        complaint.setCategory(request.getCategory());
+
+        complaint.setUsername(username);
+
+        complaint.setStatus(ComplaintStatus.PENDING);
+
+        repo.save(complaint);
     }
 
     @Override

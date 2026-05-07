@@ -3,8 +3,8 @@ package com.example.civicportal.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.stereotype.Component;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
@@ -12,35 +12,62 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    // ✅ Secret Key
+    private final Key key =
+            Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    // ✅ GENERATE TOKEN
+    // ✅ Generate JWT Token
     public String generateToken(String username, String role) {
+
         return Jwts.builder()
                 .setSubject(username)
+                .claim("username", username)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
-                .signWith(key)
+                .setExpiration(
+                        new Date(
+                                System.currentTimeMillis()
+                                        + 1000 * 60 * 60 * 24 // 24 hours
+                        )
+                )
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // ✅ EXTRACT USERNAME
+    // ✅ Extract Username
     public String extractUsername(String token) {
+
         return extractClaims(token).getSubject();
     }
 
-    // ✅ EXTRACT ROLE
+    // ✅ Extract Role
     public String extractRole(String token) {
-        return extractClaims(token).get("role", String.class);
+
+        return extractClaims(token)
+                .get("role", String.class);
     }
 
-    // ✅ COMMON METHOD
+    // ✅ Extract All Claims
     private Claims extractClaims(String token) {
+
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    // ✅ Validate Token
+    public boolean validateToken(String token) {
+
+        try {
+
+            extractClaims(token);
+            return true;
+
+        } catch (Exception e) {
+
+            return false;
+        }
     }
 }
